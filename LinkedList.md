@@ -28,7 +28,8 @@ typedef struct list
 } list;
 ```
 
-![linklist](https://github.com/snailshen2014/redis-learning/blob/master/linklist.jpeg)
+![linklist](https://github.com/snailshen2014/redis-learning/blob/master/linklist.png)
+
 
 ### 特点
 
