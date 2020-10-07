@@ -27,6 +27,7 @@ typedef struct list
   unsigned long len;                  /*节点长度*/
 } list;
 ```
+涉及到的源文件adlist.h,adlist.c
 
 ![linklist](https://github.com/snailshen2014/redis-learning/blob/master/linklist.png)
 
