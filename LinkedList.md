@@ -27,6 +27,9 @@ typedef struct list
   unsigned long len;                  /*节点长度*/
 } list;
 ```
-![linklist](https://github.com/snailshen2014/redis-learning/blob/master/linklist.png)
+
+![linklist](https://github.com/snailshen2014/redis-learning/blob/master/linklist.jpeg)
+
+### 特点
 
 
