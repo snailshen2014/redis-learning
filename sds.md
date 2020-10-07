@@ -12,8 +12,13 @@ struct sdshdr8{
 }
 ```
 sdshdr32 sdshdr64也和上面的结构一致，差别只在于len和alloc的数据类型不一样而已。相较于c原生的字符串，sds多了len、alloc、flag三个字段来存储一些额外的信息，redis考虑到了字符串拼接时带来的巨大损耗，所以每次新建sds的时候会预分配一些空间来应对未来的增长，正是因为预留空间的机制，所以redis需要记录下来已分配和总空间大小。
+redis之所以分别提供了不通的sdshdr类型，是为了节约内存，尽量的少占用内存。
+
+![sds](https://github.com/snailshen2014/redis-learning/blob/master/sds.jpg)
+
 
 ### 与C字符串的区别
+
 | c字符串 | SDS |
 | ------ | ------ |
 | 获取字符串长度的复杂度O(N) | 获取字符串长度的复杂度为O(1) | 
