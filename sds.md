@@ -1,7 +1,8 @@
 SDS(simple dynamic string)是Redis提供的字符串封装，它兼容部分C字符串API，是许多其他数据结构的基础。
 
 ### 数据结构
-redis提供了sdshdr5,sdshdr8,sdshdr16,sdshdr32,sdshdr64几种sdsd的实现，其中sdshdr5没有使用，我们以sdshdr8来举例，其定义如下：
+redis提供了sdshdr5,sdshdr8,sdshdr16,sdshdr32,sdshdr64几种sdsd的实现，其中sdshdr5没有使用，
+对应的源文件是sds.h,sds.c,我们以sdshdr8来举例，其定义如下：
 
 ```
 struct sdshdr8{
