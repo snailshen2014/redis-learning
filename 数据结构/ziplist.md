@@ -1,6 +1,7 @@
 ### layout
-
+```
 <zlbytes> <zltail> <zllen> <entry> <entry> ... <entry> <zlend>
+```
 
 详细说明
 
@@ -16,3 +17,6 @@ entryX	列表节点	不定	压缩列表包含的各个节点，节点的长度�
 
 zlend	uint8_t	1 字节	特殊值 0xFF （十进制 255 ），用于标记压缩列表的末端。
 
+举个例子
+
+![ziplist](https://github.com/snailshen2014/redis-learning/blob/master/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/ziplist.jpg)
