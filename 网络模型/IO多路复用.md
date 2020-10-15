@@ -45,3 +45,60 @@ while(1) {
 
 
 * 同步非阻塞（NIO）
+
+服务器端当accept一个请求后，加入fds集合，每次轮询一遍fds集合recv(非阻塞)数据，没有数据则立即返回错误，每次轮询所有fd（包括没有发生读写事件的fd）会很浪费cpu
+```
+setNonblocking(listen_fd)
+// 伪代码描述
+while(1) {
+  // accept非阻塞（cpu一直忙轮询）
+  client_fd = accept(listen_fd)
+  if (client_fd != null) {
+    // 有人连接
+    fds.append(client_fd)
+  } else {
+    // 无人连接
+  }  
+  for (fd in fds) {
+    // recv非阻塞
+    setNonblocking(client_fd)
+    // recv 为非阻塞命令
+    if (len = recv(fd) && len > 0) {
+      // 有读写数据
+      // logic
+    } else {
+       无读写数据
+    }
+  }  
+}
+```
+* IO多路复用
+
+服务器端采用单线程通过select/epoll等系统调用获取fd列表，遍历有事件的fd进行accept/recv/send，使其能支持更多的并发连接请求
+```
+fds = [listen_fd]
+// 伪代码描述
+while(1) {
+  // 通过内核获取有读写事件发生的fd，只要有一个则返回，无则阻塞
+  // 整个过程只在调用select、poll、epoll这些调用的时候才会阻塞，accept/recv是不会阻塞
+  for (fd in select(fds)) {
+    if (fd == listen_fd) {
+        client_fd = accept(listen_fd)
+        fds.append(client_fd)
+    } elseif (len = recv(fd) && len != -1) { 
+      // logic
+    }
+  }  
+}
+```
+* IO多路复用的三种实现方式
+
+select
+
+poll
+
+epoll
+
+参考
+
+https://juejin.im/post/6844904200141438984
