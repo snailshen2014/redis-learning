@@ -10,13 +10,12 @@ Linux 中的 IO 多路复用机制是指一个线程处理多个 IO 流，就是
 
 
 
-###代码
+### 源码分析
 
 网络事件起点：server.c->initServer()方法里在server socket(bind,listen)后，注册了acceptTcp的事件等待客户端的连接
 
+* 1 accept事件
 ```
-
-
  /* Create an event handler for accepting new connections in TCP and Unix
      * domain sockets. */
     for (j = 0; j < server.ipfd_count; j++) {
