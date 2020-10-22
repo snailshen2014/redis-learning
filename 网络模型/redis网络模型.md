@@ -12,9 +12,12 @@ Linux 中的 IO 多路复用机制是指一个线程处理多个 IO 流，就是
 
 ### 源码分析
 
-网络事件起点：server.c->initServer()方法里在server socket(bind,listen)后，注册了acceptTcp的事件等待客户端的连接
 
-* 1 accept事件
+
+* accept事件注册
+
+文件server.c文件中的initServer()方法里在server socket(bind,listen)后，注册了acceptTcp的事件等待客户端的连接
+
 ```
  /* Create an event handler for accepting new connections in TCP and Unix
      * domain sockets. */
@@ -27,9 +30,74 @@ Linux 中的 IO 多路复用机制是指一个线程处理多个 IO 流，就是
             }
     }
     
-    在acceptTcpHandler里，会注册socket read事件
-    
 ```
+
+* read读事件
+在在acceptTcpHandler里,每次会处理1000个客户端连接请求，连接三次握手建立连接之后，会调用acceptCommonHandler函数，这个函数中会创建client结构，在创建client时，会为连接的socket FD注册
+读事件回调方法readQueryFromClient。
+```
+void acceptTcpHandler(aeEventLoop *el, int fd, void *privdata, int mask) {
+    int cport, cfd, max = MAX_ACCEPTS_PER_CALL;
+    char cip[NET_IP_STR_LEN];
+    UNUSED(el);
+    UNUSED(mask);
+    UNUSED(privdata);
+
+    while(max--) {
+        cfd = anetTcpAccept(server.neterr, fd, cip, sizeof(cip), &cport);
+        if (cfd == ANET_ERR) {
+            if (errno != EWOULDBLOCK)
+                serverLog(LL_WARNING,
+                    "Accepting client connection: %s", server.neterr);
+            return;
+        }
+        serverLog(LL_VERBOSE,"Accepted %s:%d", cip, cport);
+        printf("###Syj accept fd:[%d]\n",cfd);
+        acceptCommonHandler(cfd,0,cip);
+    }
+}
+
+static void acceptCommonHandler(int fd, int flags, char *ip) {
+    client *c;
+    //创建client,
+    if ((c = createClient(fd)) == NULL) {
+        serverLog(LL_WARNING,
+            "Error registering fd event for the new client: %s (fd=%d)",
+            strerror(errno),fd);
+        close(fd); /* May be already closed, just ignore errors */
+        return;
+    }
+    //...剩余代码省略
+}
+    //根据连接的套接字创建client结构，注册socket read事件
+client *createClient(int fd) {
+    client *c = zmalloc(sizeof(client));
+
+    /* passing -1 as fd it is possible to create a non connected client.
+     * This is useful since all the commands needs to be executed
+     * in the context of a client. When commands are executed in other
+     * contexts (for instance a Lua script) we need a non connected client. */
+    if (fd != -1) {
+        anetNonBlock(NULL,fd);
+        // 关闭Nagle算法，提升响应速度
+        anetEnableTcpNoDelay(NULL,fd);
+        if (server.tcpkeepalive)
+            anetKeepAlive(NULL,fd,server.tcpkeepalive);
+        //注册socket读事件
+        if (aeCreateFileEvent(server.el,fd,AE_READABLE,
+            readQueryFromClient, c) == AE_ERR)
+        {
+            close(fd);
+            zfree(c);
+            return NULL;
+        }
+    }
+    //剩余代码省略
+}
+
+```
+
+
   //启动事件循环,等待注册的网络事件发生
   server.c->main()方法里
   
