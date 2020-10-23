@@ -98,12 +98,33 @@ client *createClient(int fd) {
 ```
 
 * write事件
-跟了一圈代码，没有找到具体的哪里注册的写事件
 
-  //启动事件循环,等待注册的网络事件发生
-  server.c->main()方法里
-  
-  aeMain(server.el);
+写事件是在事件循环之前beforeSleep()方法里，处理输出缓冲区时注册的，具体的代码是在handleClientsWithPendingWrites（）方法
+里，主要逻辑是循环待发送缓冲区，调用底层write发送数据，发送完成后，判断是否还有待发送的数据，如果又则为fd注册发送事件。
+```
+//部分代码片段
+if (clientHasPendingReplies(c)) {
+            int ae_flags = AE_WRITABLE;
+            /* For the fsync=always policy, we want that a given FD is never
+             * served for reading and writing in the same event loop iteration,
+             * so that in the middle of receiving the query, and serving it
+             * to the client, we'll call beforeSleep() that will do the
+             * actual fsync of AOF to disk. AE_BARRIER ensures that. */
+            if (server.aof_state == AOF_ON &&
+                server.aof_fsync == AOF_FSYNC_ALWAYS)
+            {
+                ae_flags |= AE_BARRIER;
+            }
+            //注册client reply 事件
+            if (aeCreateFileEvent(server.el, c->fd, ae_flags,
+                sendReplyToClient, c) == AE_ERR)
+            {
+                    freeClientAsync(c);
+            }
+        }
+
+```
+
   
   
   ###参考
