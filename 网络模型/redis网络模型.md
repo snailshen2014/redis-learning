@@ -97,6 +97,8 @@ client *createClient(int fd) {
 
 ```
 
+* write事件
+跟了一圈代码，没有找到具体的哪里注册的写事件
 
   //启动事件循环,等待注册的网络事件发生
   server.c->main()方法里
