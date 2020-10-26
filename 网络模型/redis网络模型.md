@@ -127,9 +127,4 @@ if (clientHasPendingReplies(c)) {
 
   
   
-  ###参考
-  https://blog.csdn.net/chosen0ne/article/details/42717571
-  
-  https://blog.csdn.net/chosen0ne/article/details/43053915
 
-https://time.geekbang.org/column/article/270474
