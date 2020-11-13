@@ -4,6 +4,7 @@ Redis的数据类型包括简单的键值数据类型String，集合类型（Lis
 ### 应用场景
 
 * String
+    *内部存储结构和编码方式
  String类型内部分为三种编码方式(int,raw,embstr),
  *    当你保存 64 位有符号整数时，String 类型会把它保存为一个 8 字节的 Long 类型整数，这种保存方式通常也叫作 int 编码方式。
  *    当你保存的数据中包含字符时，String 类型就会用简单动态字符串（Simple Dynamic String，SDS）结构体来保存，结构如下：len(4B)|alloc(4B)|buf("redis\0")
