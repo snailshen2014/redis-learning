@@ -32,7 +32,10 @@ Redis的数据类型包括简单的键值数据类型String，集合类型（Lis
             通过list的lrange,或者通过Sorted sets的ZRANGEBYSCORE  
             
    
-   
+     * 队列、对象映射存储  
+       List利用头尾插入，头尾出队可以实现先进先出的简单队列，但这个队列没有队列中间件的一些特性（RocketMQ)，可以用作简单的队列使用。读者可自己了解和传统队列的区别，再次不在详述。    
+       Hash，可以利用key field value来映射类的实例的属性和值。
+     
 
 * Bit arrays
      * 二值状态统计  
@@ -44,15 +47,30 @@ Redis的数据类型包括简单的键值数据类型String，集合类型（Lis
                GETBIT uid:sign:3000:202008 2     //判断用户8月3号是否签到  
                BITCOUNT uid:sign:3000:202008     //统计用户8月份签到次数  
              * 连续N天签到统计  
-               Bitmap 支持用 BITOP 命令对多个 Bitmap 按位做“与”“或”“异或”的操作，操作的结果会保存到一个新的 Bitmap 中。我以按位“与”操作为例来具体解释一下。可以看到，三个                      Bitmap bm1、bm2 和 bm3，对应 bit 位做“与”操作，结果保存到了一个新的 Bitmap 中
-             
-     
-    
-     
+               Bitmap 支持用 BITOP 命令对多个 Bitmap 按位做“与”“或”“异或”的操作，操作的结果会保存到一个新的 Bitmap 中。我以按位“与”操作为例来具体解释一下。可以看到，三个                              Bitmap bm1、bm2 和 bm3，对应 bit 位做“与”操作，结果保存到了一个新的 Bitmap 中,在统计 1 亿个用户连续 10 天的签到情况时，你可以把每天的日期作为 key，每个 key 对应一个 1                  亿位的 Bitmap，每一个 bit 对应一个用户当天的签到情况。接下来，我们对 10 个 Bitmap 做“与”操作，得到的结果也是一个 Bitmap。在这个 Bitmap 中，只有 10 天都签到的用户对应的                  bit 位上的值才会是 1。最后，我们可以用 BITCOUNT 统计下 Bitmap 中的 1 的个数，这就是连续签到 10 天的用户总数了。现在，我们可以计算一下记录了 10 天签到情况后的内存开销。每天                使用 1 个 1 亿位的 Bitmap，大约占 12MB 的内存（10^8/8/1024/1024），10 天的 Bitmap 的内存开销约为 120MB，内存压力不算太大。不过，在实际应用时，最好对 Bitmap 设置过期时                间，让 Redis 自动删除不再需要的签到记录，以节省内存开销。所以，如果只需要统计数据的二值状态，例如商品有没有、用户在不在等，就可以使用 Bitmap，因为它只用一个 bit 位就能表示 0                或 1。在记录海量数据时，Bitmap 能够有效地节省内存空间。   
      
 * HyperLogLogs  
-     * 基数统计
-* Streams
+     * 基数统计  
+     基数统计。基数统计就是指统计一个集合中不重复的元素个数。  
+         * 应用场景  
+             * 网页 UV 的统计  
+               网页 UV 的统计有个独特的地方，就是需要去重，一个用户一天内的多次访问只能算作一次。在 Redis 的集合类型中，Set 类型默认支持去重，所以看到有去重需求时，我们可能第一时间就会想到用                Set 类型,通过set可以实现小数据量的统计，但是当数据量很大时，几千万上亿时，这个时候占用的内存量巨大，这个时候就会想到HyperLogLogs了，HyperLogLog 是一种用于统计基数的数据集合                类型，它的最大优势就在于，当集合元素数量非常多时，它计算基数所需的空间总是固定的，而且还很小。在 Redis 中，每个 HyperLogLog 只需要花费 12 KB 内存，就可以计算接近 2^64 个元                素的基数。你看，和元素越多就越耗费内存的 Set 和 Hash 类型相比，HyperLogLog 就非常节省空间。在统计 UV 时，你可以用 PFADD 命令（用于向 HyperLogLog 中添加新元素）把访问页面                的每个用户都添加到 HyperLogLog 中。  
+               PFADD page1:uv user1 user2 user3 user4 user5  
+               接下来，就可以用 PFCOUNT 命令直接获得 page1 的 UV 值了，这个命令的作用就是返回 HyperLogLog 的统计结果。  
+               PFCOUNT page1:uv  
+               不过，有一点需要你注意一下，HyperLogLog 的统计规则是基于概率完成的，所以它给出的统计结果是有一定误差的，标准误算率是 0.81%。这也就意味着，你使用 HyperLogLog 统计的 UV 是                  100 万，但实际的 UV 可能是 101 万。虽然误差率不算大，但是，如果你需要精确统计结果的话，最好还是继续用 Set 或 Hash 类型。
+               
+     
+    
+* Streams  
+    * 队列
+
 * Geo
+    * 地理信息查询
+    
+### 数据类型特点对比  
+
+ ![types](https://github.com/snailshen2014/redis-learning/blob/master/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/String.jpg?raw=true) 
+
  
 
