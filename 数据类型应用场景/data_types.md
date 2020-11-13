@@ -70,7 +70,7 @@ Redis的数据类型包括简单的键值数据类型String，集合类型（Lis
     
 ### 数据类型特点对比  
 
- ![types](https://github.com/snailshen2014/redis-learning/blob/master/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/String.jpg?raw=true) 
+ ![types](https://github.com/snailshen2014/redis-learning/blob/master/%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/datatype.jpg?raw=true) 
 
  
 
