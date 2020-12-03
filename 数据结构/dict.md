@@ -90,4 +90,4 @@ ht 属性是一个包含两个项的数组， 数组中的每个项都是一个 
 **哈希表使用链表来解决哈希冲突**
 
 **渐进式rehash,哈希因子**
-
+https://luoming1224.github.io/2018/11/12/[redis%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0]redis%E6%B8%90%E8%BF%9B%E5%BC%8Frehash%E6%9C%BA%E5%88%B6/
