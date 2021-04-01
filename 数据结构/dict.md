@@ -8,7 +8,7 @@ Redis 字典所使用的哈希表由 dict.h/dictht 结构定义
 typedef struct dictht
 {
   dictEntry **table;      //哈希数组
-  unsigned long size;     //哈希表大小
+  unsigned long size;     //哈希表大小 /* This is the initial size of every hash table */ #define DICT_HT_INITIAL_SIZE     4 ,默认大小为4，会动态扩展
   unsigned long sizemask; //哈希表掩码用于计算索引值，总是等于size-1
   unsigned long used;     //哈希表已有节点的数量
 } dictht;
